@@ -1,9 +1,9 @@
 package com.studyhub.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.studyhub.entity.Answer;
+import com.studyhub.entity.Resource;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface AnswerMapper extends BaseMapper<Answer> {
+public interface ResourceMapper extends BaseMapper<Resource> {
 }
