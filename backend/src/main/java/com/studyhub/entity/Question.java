@@ -17,6 +17,9 @@ public class Question {
     private Long categoryId;
     private Long userId;
     private Integer pointsReward;
-    private String status;     // OPEN / CLOSED
+    private String status = "OPEN";     // OPEN / CLOSED / RESOLVED
+    private Integer viewCount = 0;
+    private Integer answerCount = 0;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

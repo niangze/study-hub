@@ -18,5 +18,8 @@ public class User {
     private String avatar;
     private String role;      // USER / ADMIN
     private Integer points;
+    private String studentId;
+    private String status = "ACTIVE";  // ACTIVE / FROZEN
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

@@ -18,7 +18,7 @@ mybatis-plus:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 jwt:
-  secret: your-secret-key-here-change-it-in-production
+  secret: StudyHubSecretKey2025ForJavaCourseProjectAtLeast256Bits!!
   expiration: 86400000
 
 springdoc:

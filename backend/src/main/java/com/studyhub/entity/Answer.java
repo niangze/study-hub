@@ -17,4 +17,5 @@ public class Answer {
     private Long userId;
     private Boolean isAccepted;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }
