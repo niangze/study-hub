@@ -2,6 +2,7 @@ package com.studyhub.config;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -9,6 +10,7 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
+@Slf4j
 @Component
 public class JwtUtil {
     
@@ -50,6 +52,7 @@ public class JwtUtil {
             parseToken(token);
             return true;
         } catch (Exception e) {
+            log.warn("JWT验证失败: {}", e.getMessage());
             return false;
         }
     }

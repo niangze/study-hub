@@ -47,6 +47,7 @@ CREATE TABLE question (
     KEY idx_category_id (category_id),
     KEY idx_status (status),
     KEY idx_created_at (created_at),
+    KEY idx_view_count (view_count),
     FOREIGN KEY (category_id) REFERENCES category(id) ON DELETE RESTRICT,
     FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -62,6 +63,7 @@ CREATE TABLE answer (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     KEY idx_question_id (question_id),
     KEY idx_user_id (user_id),
+    KEY idx_is_accepted (is_accepted),
     FOREIGN KEY (question_id) REFERENCES question(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

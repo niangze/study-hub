@@ -18,6 +18,7 @@ public class UserService extends ServiceImpl<UserMapper, User> {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Transactional
     public String register(String username, String password, String email) {
         if (username == null || username.isEmpty()) throw new RuntimeException("用户名不能为空");
         if (password == null || password.length() < 6) throw new RuntimeException("密码至少6位");
@@ -60,6 +61,14 @@ public class UserService extends ServiceImpl<UserMapper, User> {
         if (studentId != null) {
             user.setStudentId(studentId);
         }
+        updateById(user);
+    }
+
+    @Transactional
+    public void updateAvatar(Long userId, String avatarUrl) {
+        User user = getById(userId);
+        if (user == null) throw new RuntimeException("用户不存在");
+        user.setAvatar(avatarUrl);
         updateById(user);
     }
 
