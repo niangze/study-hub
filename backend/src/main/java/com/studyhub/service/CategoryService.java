@@ -5,7 +5,16 @@ import com.studyhub.entity.Category;
 import com.studyhub.mapper.CategoryMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class CategoryService extends ServiceImpl<CategoryMapper, Category> {
-    // BaseMapper 已提供全部CRUD，无需额外代码
+
+    public List<Category> listAll() {
+        return list();
+    }
+
+    public Category getById(Long id) {
+        return super.getById(id);
+    }
 }
