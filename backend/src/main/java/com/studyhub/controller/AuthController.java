@@ -1,46 +1,34 @@
 package com.studyhub.controller;
 
 import com.studyhub.config.Result;
+import com.studyhub.dto.LoginRequest;
+import com.studyhub.dto.RegisterRequest;
 import com.studyhub.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
-@Tag(name = "认证接口")
+@RequiredArgsConstructor
+@Tag(name = "认证管理", description = "用户注册、登录、JWT认证")
 public class AuthController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
     @PostMapping("/register")
-    @Operation(summary = "用户注册")
-    public Result<String> register(
-            @RequestParam String username,
-            @RequestParam String password,
-            @RequestParam String email) {
-        if (!StringUtils.hasText(username) || !StringUtils.hasText(password) || !StringUtils.hasText(email)) {
-            return Result.error(400, "用户名、密码和邮箱不能为空");
-        }
-        if (password.length() < 6) {
-            return Result.error(400, "密码长度不能少于6位");
-        }
-        String token = userService.register(username, password, email);
+    @Operation(summary = "用户注册", description = "注册新用户并返回JWT令牌")
+    public Result<String> register(@Valid @RequestBody RegisterRequest request) {
+        String token = userService.register(request);
         return Result.success(token);
     }
 
     @PostMapping("/login")
-    @Operation(summary = "用户登录")
-    public Result<String> login(
-            @RequestParam String username,
-            @RequestParam String password) {
-        if (!StringUtils.hasText(username) || !StringUtils.hasText(password)) {
-            return Result.error(400, "用户名和密码不能为空");
-        }
-        String token = userService.login(username, password);
+    @Operation(summary = "用户登录", description = "使用用户名密码登录并返回JWT令牌")
+    public Result<String> login(@Valid @RequestBody LoginRequest request) {
+        String token = userService.login(request);
         return Result.success(token);
     }
 }

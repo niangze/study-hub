@@ -1,52 +1,57 @@
 package com.studyhub.controller;
 
+import com.studyhub.config.JwtUtil;
 import com.studyhub.config.Result;
-import com.studyhub.entity.User;
 import com.studyhub.service.UserService;
+import com.studyhub.vo.UserVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/user")
-@Tag(name = "用户接口")
+@RequiredArgsConstructor
+@Tag(name = "用户管理", description = "用户信息、积分、个人中心")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+    private final JwtUtil jwtUtil;
 
-    @GetMapping("/me")
-    @Operation(summary = "获取当前用户信息")
-    public Result<User> currentUser() {
-        Long userId = getCurrentUserId();
-        return Result.success(userService.getCurrentUser(userId));
+    @GetMapping("/profile")
+    @Operation(summary = "个人信息", description = "获取当前登录用户信息")
+    public Result<UserVO> profile(HttpServletRequest request) {
+        Long userId = jwtUtil.getUserIdFromRequest(request);
+        return Result.success(userService.getProfile(userId));
     }
 
-    @PutMapping("/info")
-    @Operation(summary = "更新个人信息")
-    public Result<?> updateInfo(@RequestParam(required = false) String email,
-                                @RequestParam(required = false) String studentId) {
-        userService.updateInfo(getCurrentUserId(), email, studentId);
+    @PutMapping("/profile")
+    @Operation(summary = "更新信息", description = "更新用户邮箱和头像")
+    public Result<UserVO> updateProfile(@RequestParam(required = false) String email,
+                                         @RequestParam(required = false) String avatar,
+                                         HttpServletRequest request) {
+        Long userId = jwtUtil.getUserIdFromRequest(request);
+        return Result.success(userService.updateProfile(userId, email, avatar));
+    }
+
+    @PostMapping("/password")
+    @Operation(summary = "修改密码", description = "修改用户登录密码")
+    public Result<Void> updatePassword(@RequestParam String oldPassword,
+                                        @RequestParam String newPassword,
+                                        HttpServletRequest request) {
+        Long userId = jwtUtil.getUserIdFromRequest(request);
+        userService.updatePassword(userId, oldPassword, newPassword);
         return Result.success();
     }
 
-    @PutMapping("/password")
-    @Operation(summary = "修改密码")
-    public Result<?> changePassword(@RequestParam String oldPassword,
-                                    @RequestParam String newPassword) {
-        userService.changePassword(getCurrentUserId(), oldPassword, newPassword);
-        return Result.success();
-    }
-
-    @GetMapping("/{id}")
-    @Operation(summary = "根据ID获取用户")
-    public Result<User> getById(@PathVariable Long id) {
-        return Result.success(userService.getById(id));
-    }
-
-    private Long getCurrentUserId() {
-        return (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    @GetMapping("/{username}")
+    @Operation(summary = "查看用户", description = "通过用户名查看用户信息")
+    public Result<UserVO> getByUsername(@PathVariable String username) {
+        UserVO vo = userService.getByUsername(username);
+        if (vo == null) {
+            return Result.error("用户不存在");
+        }
+        return Result.success(vo);
     }
 }
