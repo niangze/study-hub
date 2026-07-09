@@ -3,17 +3,15 @@ package com.studyhub.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.studyhub.entity.Question;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 @Mapper
 public interface QuestionMapper extends BaseMapper<Question> {
 
-    @Update("UPDATE question SET view_count = view_count + 1 WHERE id = #{id}")
-    int incrementViewCount(Long id);
+    @Select("SELECT COUNT(*) FROM question WHERE status = 'OPEN'")
+    Long selectPendingCount();
 
-    @Update("UPDATE question SET answer_count = answer_count + 1 WHERE id = #{id}")
-    int incrementAnswerCount(Long id);
-
-    @Update("UPDATE question SET answer_count = answer_count - 1 WHERE id = #{id} AND answer_count > 0")
-    int decrementAnswerCount(Long id);
+    @Select("SELECT COUNT(*) FROM question WHERE status = 'CLOSED'")
+    Long selectResolvedCount();
 }

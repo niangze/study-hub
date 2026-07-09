@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.studyhub.mapper.QuestionMapper">
+
+    <resultMap id="QuestionVOMap" type="com.studyhub.vo.QuestionVO">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="category_name" property="categoryName"/>
+        <result column="user_id" property="userId"/>
+        <result column="username" property="username"/>
+        <result column="user_avatar" property="userAvatar"/>
+        <result column="points_reward" property="pointsReward"/>
+        <result column="status" property="status"/>
+        <result column="answer_count" property="answerCount"/>
+        <result column="view_count" property="viewCount"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <select id="selectPendingCount" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM question WHERE status = 'OPEN'
+    </select>
+
+    <select id="selectResolvedCount" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM question WHERE status = 'CLOSED'
+    </select>
+
+    <select id="selectQuestionListWithUser" resultMap="QuestionVOMap">
+        SELECT 
+            q.*,
+            u.username as username,
+            u.avatar as user_avatar,
+            c.name as category_name
+        FROM question q
+        LEFT JOIN user u ON q.user_id = u.id
+        LEFT JOIN category c ON q.category_id = c.id
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (q.title LIKE CONCAT('%', #{keyword}, '%') 
+                     OR q.content LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="categoryId != null">
+                AND q.category_id = #{categoryId}
+            </if>
+        </where>
+        ORDER BY q.created_at DESC
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <select id="selectQuestionWithUserById" resultMap="QuestionVOMap">
+        SELECT 
+            q.*,
+            u.username as username,
+            u.avatar as user_avatar,
+            c.name as category_name
+        FROM question q
+        LEFT JOIN user u ON q.user_id = u.id
+        LEFT JOIN category c ON q.category_id = c.id
+        WHERE q.id = #{id}
+    </select>
+
+    <select id="selectHotQuestions" resultMap="QuestionVOMap">
+        SELECT 
+            q.*,
+            u.username as username,
+            u.avatar as user_avatar,
+            c.name as category_name
+        FROM question q
+        LEFT JOIN user u ON q.user_id = u.id
+        LEFT JOIN category c ON q.category_id = c.id
+        ORDER BY q.view_count DESC, q.answer_count DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectLatestQuestions" resultMap="QuestionVOMap">
+        SELECT 
+            q.*,
+            u.username as username,
+            u.avatar as user_avatar,
+            c.name as category_name
+        FROM question q
+        LEFT JOIN user u ON q.user_id = u.id
+        LEFT JOIN category c ON q.category_id = c.id
+        ORDER BY q.created_at DESC
+        LIMIT #{limit}
+    </select>
+
+</mapper>
