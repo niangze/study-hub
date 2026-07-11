@@ -6,11 +6,16 @@
         <template #header>
           <div class="header-flex">
             <span>问题列表</span>
-            <el-input v-model="keyword" placeholder="搜索问题" style="width: 300px">
-              <template #append>
-                <el-button @click="handleSearch"><el-icon><Search /></el-icon></el-button>
-              </template>
-            </el-input>
+            <div class="search-bar">
+              <el-select v-model="categoryId" placeholder="分类" clearable style="width: 150px; margin-right: 10px" @change="handleCategoryChange">
+                <el-option v-for="c in categories" :key="c.id" :label="c.name" :value="c.id" />
+              </el-select>
+              <el-input v-model="keyword" placeholder="搜索问题" style="width: 250px" @keyup.enter="handleSearch">
+                <template #append>
+                  <el-button @click="handleSearch"><el-icon><Search /></el-icon></el-button>
+                </template>
+              </el-input>
+            </div>
           </div>
         </template>
         <el-empty v-if="questions.length === 0" description="暂无问题" />
@@ -20,8 +25,19 @@
           <div class="meta">
             <el-tag size="small">悬赏 {{ q.pointsReward }} 积分</el-tag>
             <el-tag :type="q.status === 'OPEN' ? 'success' : 'info'" size="small">{{ q.status }}</el-tag>
+            <span class="author">{{ q.username }} | 回答 {{ q.answerCount }} | 浏览 {{ q.viewCount }}</span>
           </div>
         </div>
+        <!-- 分页 -->
+        <el-pagination
+          v-if="total > 0"
+          v-model:current-page="page"
+          v-model:page-size="size"
+          :total="total"
+          layout="total, prev, pager, next"
+          @current-change="handlePageChange"
+          style="margin-top: 20px; justify-content: center"
+        />
       </el-card>
     </div>
   </div>
@@ -30,23 +46,59 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { getQuestionList, searchQuestions } from '../api/question'
-import AppHeader from '../components/AppHeader.vue'
+import { getQuestionList } from '../api/question'
+import { getCategoryList } from '../api/category'
+import AppHeader from '../components/AddHeader.vue'
 
 const router = useRouter()
 const questions = ref([])
 const keyword = ref('')
+const categoryId = ref('')
+const categories = ref([])
+const page = ref(1)
+const size = ref(10)
+const total = ref(0)
 
 onMounted(async () => {
-  questions.value = await getQuestionList()
+  await Promise.all([fetchQuestions(), fetchCategories()])
 })
 
-const handleSearch = async () => {
-  if (keyword.value) {
-    questions.value = await searchQuestions(keyword.value)
-  } else {
-    questions.value = await getQuestionList()
+const fetchQuestions = async () => {
+  try {
+    const params = {
+      page: page.value,
+      size: size.value,
+      keyword: keyword.value || undefined,
+      categoryId: categoryId.value || undefined
+    }
+    const res = await getQuestionList(params)
+    questions.value = res.list || []
+    total.value = res.total || 0
+  } catch (e) {
+    console.error('获取问题列表失败:', e)
   }
+}
+
+const fetchCategories = async () => {
+  try {
+    categories.value = await getCategoryList() || []
+  } catch (e) {
+    console.error('获取分类失败:', e)
+  }
+}
+
+const handleSearch = () => {
+  page.value = 1
+  fetchQuestions()
+}
+
+const handleCategoryChange = () => {
+  page.value = 1
+  fetchQuestions()
+}
+
+const handlePageChange = () => {
+  fetchQuestions()
 }
 
 const viewQuestion = (id) => {
@@ -63,6 +115,10 @@ const viewQuestion = (id) => {
 .header-flex {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+}
+.search-bar {
+  display: flex;
   align-items: center;
 }
 .question-card {
@@ -87,6 +143,11 @@ const viewQuestion = (id) => {
 }
 .meta {
   display: flex;
+  align-items: center;
   gap: 10px;
+}
+.author {
+  color: #999;
+  font-size: 13px;
 }
 </style>
