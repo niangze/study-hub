@@ -67,6 +67,13 @@
             <scope>runtime</scope>
         </dependency>
         
+        <!-- H2 Database (for local dev/testing, zero-config) -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        
         <!-- Swagger -->
         <dependency>
             <groupId>org.springdoc</groupId>
