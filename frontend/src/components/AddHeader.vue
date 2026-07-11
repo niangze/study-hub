@@ -8,7 +8,7 @@
       <el-button link @click="$router.push('/home')">首页</el-button>
       <el-button link @click="$router.push('/questions')">问答</el-button>
       <el-button link @click="$router.push('/profile')">个人中心</el-button>
-      <el-button v-if="userStore.isLoggedIn()" type="danger" link @click="handleLogout">退出</el-button>
+      <el-button v-if="userStore.isLoggedIn" type="danger" link @click="handleLogout">退出</el-button>
       <el-button v-else link @click="$router.push('/login')">登录</el-button>
     </div>
   </el-header>
@@ -22,7 +22,7 @@ const router = useRouter()
 const userStore = useUserStore()
 
 const handleLogout = () => {
-  userStore.logout()
+  userStore.clearUser()
   router.push('/login')
 }
 </script>
