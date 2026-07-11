@@ -7,7 +7,7 @@
         <el-col :span="6">
           <el-card>
             <div class="stat">
-              <div class="number">128</div>
+              <div class="number">{{ stats.userCount || 0 }}</div>
               <div class="label">注册用户</div>
             </div>
           </el-card>
@@ -15,7 +15,7 @@
         <el-col :span="6">
           <el-card>
             <div class="stat">
-              <div class="number">56</div>
+              <div class="number">{{ stats.questionCount || 0 }}</div>
               <div class="label">问题总数</div>
             </div>
           </el-card>
@@ -23,7 +23,7 @@
         <el-col :span="6">
           <el-card>
             <div class="stat">
-              <div class="number">234</div>
+              <div class="number">{{ stats.answerCount || 0 }}</div>
               <div class="label">回答总数</div>
             </div>
           </el-card>
@@ -31,7 +31,7 @@
         <el-col :span="6">
           <el-card>
             <div class="stat">
-              <div class="number">89</div>
+              <div class="number">{{ stats.resourceCount || 0 }}</div>
               <div class="label">资源数量</div>
             </div>
           </el-card>
@@ -42,7 +42,20 @@
 </template>
 
 <script setup>
-import AppHeader from '../components/AppHeader.vue'
+import { ref, onMounted } from 'vue'
+import { getDashboardStats } from '../api/admin'
+import AppHeader from '../components/AddHeader.vue'
+
+const stats = ref({})
+
+onMounted(async () => {
+  try {
+    const data = await getDashboardStats()
+    stats.value = data || {}
+  } catch (e) {
+    console.error('获取统计数据失败:', e)
+  }
+})
 </script>
 
 <style scoped>
