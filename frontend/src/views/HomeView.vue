@@ -40,8 +40,11 @@
             <el-button type="primary" @click="$router.push('/ask')" style="width: 100%; margin-bottom: 10px">
               <el-icon><Plus /></el-icon> 提问
             </el-button>
-            <el-button @click="$router.push('/questions')" style="width: 100%">
+            <el-button @click="$router.push('/questions')" style="width: 100%; margin-bottom: 10px">
               <el-icon><Search /></el-icon> 浏览问题
+            </el-button>
+            <el-button @click="$router.push('/resources')" style="width: 100%">
+              <el-icon><Document /></el-icon> 浏览资源
             </el-button>
           </el-card>
           <!-- 分类 -->
