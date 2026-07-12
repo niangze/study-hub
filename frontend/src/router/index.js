@@ -9,6 +9,7 @@ import QuestionDetailView from '../views/QuestionDetailView.vue'
 import AskView from '../views/AskView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import AdminView from '../views/AdminView.vue'
+import ResourceListView from '../views/ResourceListView.vue'
 
 const routes = [
   { path: '/', redirect: '/home' },
@@ -18,6 +19,7 @@ const routes = [
   { path: '/questions', name: 'QuestionList', component: QuestionListView },
   { path: '/question/:id', name: 'QuestionDetail', component: QuestionDetailView },
   { path: '/ask', name: 'Ask', component: AskView, meta: { requireAuth: true } },
+  { path: '/resources', name: 'ResourceList', component: ResourceListView },
   { path: '/profile', name: 'Profile', component: ProfileView, meta: { requireAuth: true } },
   { path: '/admin', name: 'Admin', component: AdminView, meta: { requireAuth: true, requireAdmin: true } }
 ]
