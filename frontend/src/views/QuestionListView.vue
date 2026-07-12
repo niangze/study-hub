@@ -5,7 +5,12 @@
       <el-card>
         <template #header>
           <div class="header-flex">
-            <span>问题列表</span>
+            <div class="left-actions">
+              <span style="font-weight: bold; margin-right: 15px">问题列表</span>
+              <el-button type="primary" size="small" @click="$router.push('/ask')">
+                <el-icon><Plus /></el-icon> 提问
+              </el-button>
+            </div>
             <div class="search-bar">
               <el-select v-model="categoryId" placeholder="分类" clearable style="width: 150px; margin-right: 10px" @change="handleCategoryChange">
                 <el-option v-for="c in categories" :key="c.id" :label="c.name" :value="c.id" />
@@ -115,6 +120,10 @@ const viewQuestion = (id) => {
 .header-flex {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+}
+.left-actions {
+  display: flex;
   align-items: center;
 }
 .search-bar {
