@@ -3,7 +3,9 @@ package com.studyhub.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.studyhub.dto.CommentRequest;
 import com.studyhub.entity.Comment;
+import com.studyhub.entity.User;
 import com.studyhub.mapper.CommentMapper;
+import com.studyhub.mapper.UserMapper;
 import com.studyhub.vo.CommentVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 public class CommentService {
 
     private final CommentMapper commentMapper;
+    private final UserMapper userMapper;
 
     public CommentVO createComment(Long userId, CommentRequest request) {
         Comment comment = new Comment();
@@ -32,7 +35,8 @@ public class CommentService {
     }
 
     public List<CommentVO> getCommentsByAnswerId(Long answerId) {
-        return commentMapper.selectByAnswerId(answerId).stream()
+        List<Comment> commentList = commentMapper.selectByAnswerId(answerId);
+        return commentList.stream()
                 .map(this::toVO)
                 .collect(Collectors.toList());
     }
@@ -48,6 +52,11 @@ public class CommentService {
     private CommentVO toVO(Comment comment) {
         CommentVO vo = new CommentVO();
         BeanUtils.copyProperties(comment, vo);
+        // 查询用户名
+        User user = userMapper.selectById(comment.getUserId());
+        if (user != null) {
+            vo.setUsername(user.getUsername());
+        }
         return vo;
     }
 }
