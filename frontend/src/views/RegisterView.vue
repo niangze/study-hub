@@ -7,6 +7,9 @@
           <el-input v-model="form.username" placeholder="用户名" prefix-icon="User" />
         </el-form-item>
         <el-form-item>
+          <el-input v-model="form.studentId" placeholder="学号（可选）" prefix-icon="School" />
+        </el-form-item>
+        <el-form-item>
           <el-input v-model="form.email" placeholder="邮箱（可选）" prefix-icon="Message" />
         </el-form-item>
         <el-form-item>
@@ -37,7 +40,7 @@ const router = useRouter()
 const userStore = useUserStore()
 const loading = ref(false)
 
-const form = reactive({ username: '', password: '', email: '', confirmPassword: '' })
+const form = reactive({ username: '', password: '', email: '', studentId: '', confirmPassword: '' })
 
 const handleRegister = async () => {
   if (!form.username || !form.password) {
@@ -57,7 +60,8 @@ const handleRegister = async () => {
     const token = await register({
       username: form.username,
       password: form.password,
-      email: form.email || undefined
+      email: form.email || undefined,
+      studentId: form.studentId || undefined
     })
     userStore.setToken(token)
     ElMessage.success('注册成功')
