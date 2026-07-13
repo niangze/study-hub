@@ -27,13 +27,15 @@ public class DataInitializer {
             CategoryMapper categoryMapper,
             QuestionMapper questionMapper,
             AnswerMapper answerMapper,
-            ResourceMapper resourceMapper) {
+            ResourceMapper resourceMapper,
+            LikeMapper likeMapper,
+            CommentMapper commentMapper,
+            FollowMapper followMapper) {
         return args -> {
             // ==============================
             // 1. Create tables (H2 compatible)
             // ==============================
 
-            // User table - includes student_id, status fields from entity
             jdbc.execute("CREATE TABLE IF NOT EXISTS user (" +
                 "id BIGINT AUTO_INCREMENT PRIMARY KEY," +
                 "username VARCHAR(50) NOT NULL UNIQUE," +
@@ -48,7 +50,6 @@ public class DataInitializer {
                 "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
                 "deleted TINYINT DEFAULT 0)");
 
-            // Category table - includes updated_at
             jdbc.execute("CREATE TABLE IF NOT EXISTS category (" +
                 "id BIGINT AUTO_INCREMENT PRIMARY KEY," +
                 "name VARCHAR(50) NOT NULL UNIQUE," +
@@ -57,7 +58,6 @@ public class DataInitializer {
                 "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
                 "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
 
-            // Question table
             jdbc.execute("CREATE TABLE IF NOT EXISTS question (" +
                 "id BIGINT AUTO_INCREMENT PRIMARY KEY," +
                 "title VARCHAR(200) NOT NULL," +
@@ -72,7 +72,6 @@ public class DataInitializer {
                 "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
                 "deleted TINYINT DEFAULT 0)");
 
-            // Answer table
             jdbc.execute("CREATE TABLE IF NOT EXISTS answer (" +
                 "id BIGINT AUTO_INCREMENT PRIMARY KEY," +
                 "content TEXT NOT NULL," +
@@ -83,7 +82,6 @@ public class DataInitializer {
                 "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
                 "deleted TINYINT DEFAULT 0)");
 
-            // Resource table - includes updated_at
             jdbc.execute("CREATE TABLE IF NOT EXISTS resource (" +
                 "id BIGINT AUTO_INCREMENT PRIMARY KEY," +
                 "title VARCHAR(200) NOT NULL," +
@@ -96,6 +94,31 @@ public class DataInitializer {
                 "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
                 "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
                 "deleted TINYINT DEFAULT 0)");
+
+            // NEW: Likes table
+            jdbc.execute("CREATE TABLE IF NOT EXISTS likes (" +
+                "id BIGINT AUTO_INCREMENT PRIMARY KEY," +
+                "user_id BIGINT NOT NULL," +
+                "target_id BIGINT NOT NULL," +
+                "target_type VARCHAR(20) NOT NULL," +
+                "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
+
+            // NEW: Comment table
+            jdbc.execute("CREATE TABLE IF NOT EXISTS comment (" +
+                "id BIGINT AUTO_INCREMENT PRIMARY KEY," +
+                "answer_id BIGINT NOT NULL," +
+                "user_id BIGINT NOT NULL," +
+                "content TEXT NOT NULL," +
+                "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                "deleted TINYINT DEFAULT 0)");
+
+            // NEW: Follow table
+            jdbc.execute("CREATE TABLE IF NOT EXISTS follow (" +
+                "id BIGINT AUTO_INCREMENT PRIMARY KEY," +
+                "follower_id BIGINT NOT NULL," +
+                "following_id BIGINT NOT NULL," +
+                "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
 
             // ==============================
             // 2. Insert sample data
@@ -124,11 +147,11 @@ public class DataInitializer {
 
             // --- Users (password: 123456) ---
             String[][] users = {
-                {"demo", "demo@xmu.edu.cn", "100", "USER"},
-                {"admin", "admin@xmu.edu.cn", "999", "ADMIN"},
-                {"zhangsan", "zhangsan@xmu.edu.cn", "150", "USER"},
-                {"lisi", "lisi@xmu.edu.cn", "80", "USER"},
-                {"wangwu", "wangwu@xmu.edu.cn", "200", "USER"}
+                {"demo", "demo@xmu.edu.cn", "100", "USER", "20240001"},
+                {"admin", "admin@xmu.edu.cn", "999", "ADMIN", "20240002"},
+                {"zhangsan", "zhangsan@xmu.edu.cn", "150", "USER", "20240101"},
+                {"lisi", "lisi@xmu.edu.cn", "80", "USER", "20240102"},
+                {"wangwu", "wangwu@xmu.edu.cn", "200", "USER", "20240103"}
             };
             for (int i = 0; i < users.length; i++) {
                 User u = new User();
@@ -139,6 +162,7 @@ public class DataInitializer {
                 u.setAvatar("https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png");
                 u.setPoints(Integer.parseInt(users[i][2]));
                 u.setRole(users[i][3]);
+                u.setStudentId(users[i][4]);
                 userMapper.insert(u);
             }
 
@@ -170,9 +194,9 @@ public class DataInitializer {
 
             // --- Answers ---
             String[][] answers = {
-                {"核心区别在于：接口只能定义方法签名不能有实现，抽象类可以有部分实现。一个类可以实现多个接口但只能继承一个抽象类。\n\n建议优先用接口定义行为契约，用抽象类提取公共代码。", "1", "5", "true"},
+                {"核心区别在于：接口只能定义方法签名不能有实现，抽象类可以有部分实现。一个类可以实现多个接口但只能继承一个抽象类。\\n\\n建议优先用接口定义行为契约，用抽象类提取公共代码。", "1", "5", "true"},
                 {"补充一点：接口中的default方法主要是为了向后兼容。实际项目中如果一个类需要多个不同来源的行为，用接口组合；如果需要复用代码模板，用抽象类。", "1", "1", "false"},
-                {"常见原因：1.对索引列使用函数 2.隐式类型转换 3.OR条件中部分列无索引 4.LIKE以%开头 5.数据量太小全表扫描更快 6.!=或<>操作符。\n\n排查方法：用EXPLAIN分析执行计划。", "2", "5", "false"},
+                {"常见原因：1.对索引列使用函数 2.隐式类型转换 3.OR条件中部分列无索引 4.LIKE以%开头 5.数据量太小全表扫描更快 6.!=或<>操作符。\\n\\n排查方法：用EXPLAIN分析执行计划。", "2", "5", "false"},
                 {"Composition API更适合逻辑复用和TypeScript，Options API更适合小项目或初学者。新项目推荐Composition API，配合script setup语法糖代码更简洁。", "3", "1", "true"},
                 {"快速排序平均O(n log n)是因为每次partition大致将数组分成两半，递归深度是log n，每层操作是O(n)。最坏O(n^2)发生在每次选的基准都是最大或最小值时。", "5", "5", "true"},
                 {"准备实习的话建议：1.基础要扎实 2.Spring生态 3.数据库 4.LeetCode至少刷100道 5.准备一个能演示的项目", "8", "5", "true"},
@@ -210,6 +234,58 @@ public class DataInitializer {
                 r.setPointsCost(Integer.parseInt(resources[i][6]));
                 r.setCreatedAt(LocalDateTime.of(2025, 7, 1 + i / 2, 8 + i, 0));
                 resourceMapper.insert(r);
+            }
+
+            // --- Likes (sample) ---
+            int[][] likes = {
+                {1, 1, "QUESTION"}, {2, 1, "QUESTION"}, {3, 1, "QUESTION"},
+                {1, 2, "QUESTION"}, {2, 3, "QUESTION"}, {3, 3, "QUESTION"},
+                {1, 4, "QUESTION"}, {4, 5, "QUESTION"}, {5, 8, "QUESTION"},
+                {1, 1, "ANSWER"}, {2, 1, "ANSWER"}, {3, 4, "ANSWER"}, {4, 5, "ANSWER"}, {5, 6, "ANSWER"}
+            };
+            for (int[] like : likes) {
+                Like l = new Like();
+                l.setUserId((long)like[0]);
+                l.setTargetId((long)like[1]);
+                l.setTargetType(like[2]);
+                l.setCreatedAt(LocalDateTime.now());
+                likeMapper.insert(l);
+            }
+
+            // --- Comments (sample) ---
+            String[][] comments = {
+                {"1", "1", "说得很清楚，感谢！"},
+                {"1", "2", "补充得很到位，学习了。"},
+                {"1", "3", "收藏了，面试前再看看。"},
+                {"4", "3", "请问有具体的例子吗？"},
+                {"4", "5", "讲得很透彻！"},
+                {"3", "6", "很有用的建议，谢谢！"}
+            };
+            for (int i = 0; i < comments.length; i++) {
+                Comment c = new Comment();
+                c.setId((long)(i + 1));
+                c.setAnswerId(Long.parseLong(comments[i][0]));
+                c.setUserId(Long.parseLong(comments[i][1]));
+                c.setContent(comments[i][2]);
+                c.setCreatedAt(LocalDateTime.now());
+                c.setUpdatedAt(LocalDateTime.now());
+                c.setDeleted(0);
+                commentMapper.insert(c);
+            }
+
+            // --- Follows (sample) ---
+            int[][] follows = {
+                {1, 2}, {1, 3}, {1, 5},
+                {3, 1}, {3, 5},
+                {4, 1}, {4, 3}, {4, 5},
+                {5, 1}, {5, 3}
+            };
+            for (int[] f : follows) {
+                Follow follow = new Follow();
+                follow.setFollowerId((long)f[0]);
+                follow.setFollowingId((long)f[1]);
+                follow.setCreatedAt(LocalDateTime.now());
+                followMapper.insert(follow);
             }
         };
     }
