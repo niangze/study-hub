@@ -32,6 +32,16 @@ public class DataInitializer {
             CommentMapper commentMapper,
             FollowMapper followMapper) {
         return args -> {
+            // 先删除旧表（防止之前不完整的表结构残留）
+            jdbc.execute("DROP TABLE IF EXISTS likes");
+            jdbc.execute("DROP TABLE IF EXISTS comment");
+            jdbc.execute("DROP TABLE IF EXISTS follow");
+            jdbc.execute("DROP TABLE IF EXISTS resource");
+            jdbc.execute("DROP TABLE IF EXISTS answer");
+            jdbc.execute("DROP TABLE IF EXISTS question");
+            jdbc.execute("DROP TABLE IF EXISTS category");
+            jdbc.execute("DROP TABLE IF EXISTS user");
+
             // ==============================
             // 1. Create tables (H2 compatible)
             // ==============================
