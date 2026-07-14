@@ -9,6 +9,7 @@
       <el-button link @click="$router.push('/questions')">问答</el-button>
       <el-button link @click="$router.push('/resources')">资源</el-button>
       <el-button link @click="$router.push('/profile')">个人中心</el-button>
+      <el-button v-if="userStore.isAdmin" link type="warning" @click="$router.push('/admin')">后台管理</el-button>
       <el-button v-if="userStore.isLoggedIn" type="danger" link @click="handleLogout">退出</el-button>
       <el-button v-else link @click="$router.push('/login')">登录</el-button>
     </div>
