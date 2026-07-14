@@ -1,3 +1,40 @@
+import { createRouter, createWebHistory } from 'vue-router'
+import { useUserStore } from '../store/user'
+import { ElMessage } from 'element-plus'
+
+const routes = [
+  { path: '/', redirect: '/home' },
+  { path: '/home', component: () => import('../views/HomeView.vue') },
+  { path: '/login', component: () => import('../views/LoginView.vue') },
+  { path: '/register', component: () => import('../views/RegisterView.vue') },
+  { path: '/questions', component: () => import('../views/QuestionListView.vue') },
+  { path: '/question/:id', component: () => import('../views/QuestionDetailView.vue') },
+  {
+    path: '/ask',
+    component: () => import('../views/AskView.vue'),
+    meta: { requireAuth: true }
+  },
+  {
+    path: '/profile',
+    component: () => import('../views/ProfileView.vue'),
+    meta: { requireAuth: true }
+  },
+  {
+    path: '/admin',
+    component: () => import('../views/AdminView.vue'),
+    meta: { requireAuth: true, requireAdmin: true }
+  },
+  { path: '/resources', component: () => import('../views/ResourceListView.vue') }
+]
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes
+})
+
+router.beforeEach((to, from, next) => {
+  const userStore = useUserStore()
+
   // 需要登录的页面
   if (to.meta?.requireAuth) {
     if (!userStore.isLoggedIn) {
@@ -23,6 +60,6 @@
   }
 
   next()
-}
+})
 
 export default router
