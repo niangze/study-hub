@@ -11,6 +11,7 @@ public class UserVO {
     private String avatar;
     private Integer points;
     private String role;
+    private String studentId;
     private LocalDateTime createdAt;
     private Integer questionCount;
     private Integer answerCount;
