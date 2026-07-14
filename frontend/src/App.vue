@@ -7,6 +7,25 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue'
+import { useUserStore } from './store/user'
+import { getProfile } from './api/user'
+
+const userStore = useUserStore()
+
+onMounted(async () => {
+  // 页面刷新后：token 仍在 localStorage 但 userInfo 已丢失
+  // 自动调用 getProfile() 恢复用户信息（含 role 字段用于权限判断）
+  if (userStore.isLoggedIn && !userStore.userInfo) {
+    try {
+      const data = await getProfile()
+      userStore.setUserInfo(data)
+    } catch (e) {
+      // token 已过期或无效，清除登录状态避免权限混乱
+      userStore.clearUser()
+    }
+  }
+})
 </script>
 
 <style>
